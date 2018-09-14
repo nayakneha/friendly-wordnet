@@ -1,26 +1,26 @@
 from nltk.corpus import wordnet as wn
 
 class PartOfSpeech(object):
-  ADJECTIVE="Adjective"
-  NOUN="Noun"
-  ADVERB="Adverb"
-  VERB="Verb"
- 
+  ADJECTIVE = "Adjective"
+  NOUN = "Noun"
+  ADVERB = "Adverb"
+  VERB = "Verb"
+
 PARTS_OF_SPEECH = {
-  'a': PartOfSpeech.ADJECTIVE,
-  'n': PartOfSpeech.NOUN,
-  'r': PartOfSpeech.ADVERB,
-  'v': PartOfSpeech.VERB
-}  
+    'a': PartOfSpeech.ADJECTIVE,
+    'n': PartOfSpeech.NOUN,
+    'r': PartOfSpeech.ADVERB,
+    'v': PartOfSpeech.VERB
+}
 
 class Relation(object):
   HYPERNYM = "HYPERNYM"
   HYPONYM = "HYPONYM"
 
 RELATION_FUNCTIONS = {
-  Relation.HYPERNYM : lambda synset:synset.hypernyms(),
-  Relation.HYPONYM : lambda synset:synset.hyponyms()
-}  
+    Relation.HYPERNYM : lambda synset: synset.hypernyms(),
+    Relation.HYPONYM : lambda synset: synset.hyponyms()
+}
 
 class GraphConfig(object):
   def __init__(self):
@@ -32,26 +32,24 @@ class WordNetNode(object):
     self.children = []
 
 def print_edge(from_string, to_string, relation):
-  print ("\t".join([from_string,
-                   to_string,
-                   relation]))
+  print ("\t".join([from_string, to_string, relation]))
 
 class StringTree(object):
-   def __init__(self, wordnet_graph):
-     self.root = StringNode(wordnet_graph.tree)
-     self.relation = wordnet_graph.relation
- 
-   def dump_edges(self):
-     root = self.root
-     queue = [("None", root)]
-     while queue:
-       front_from, front_to = queue.pop()
-       if front_from is not "None":
-         print_edge(front_from.name, front_to.name, self.relation)
-       queue += [(front_to, child) for child in front_to.children]    
+  def __init__(self, wordnet_graph):
+    self.root = StringNode(wordnet_graph.tree)
+    self.relation = wordnet_graph.relation
 
-   def dump_transitive_edges(self):
-     pass
+  def dump_edges(self):
+    root = self.root
+    queue = [(None, root)]
+    while queue:
+      front_from, front_to = queue.pop()
+      if front_from is not None:
+        print_edge(front_from.name, front_to.name, self.relation)
+      queue += [(front_to, child) for child in front_to.children]
+
+  def dump_transitive_edges(self):
+    pass
 
 
 class StringNode(object):
@@ -74,10 +72,10 @@ class WordNetGraph(object):
       print front.synset.name()
       front.children = [WordNetNode(child) for child in
                         self.function(front.synset)]
-      queue+=front.children
+      queue += front.children
     return root
 
 
 ROOT_LEMMAS = {
-  PartOfSpeech.NOUN : wn.synset('entity.n.01'),
+    PartOfSpeech.NOUN : wn.synset('entity.n.01'),
 }
