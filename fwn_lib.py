@@ -19,7 +19,7 @@ PARTS_OF_SPEECH = {
 }
 
 ROOT_LEMMAS = {
-    PartOfSpeech.NOUN : wn.synset('alloy.n.01'),
+    PartOfSpeech.NOUN : wn.synset('entity.n.01'),
 }
 
 RELATION_FUNCTIONS = {
@@ -39,6 +39,7 @@ def print_edge(from_string, to_string, relation, dist=None):
   print ("\t".join(fields))
  
 class SynsetList(object):
+  # TODO: rename the list in this thing...
   def __init__(self, wn):
     self.synset_list = tuple(sorted(synset.name() for synset in wn.all_synsets()))
     assert len(self.synset_list) == len(set(self.synset_list))
@@ -75,6 +76,7 @@ class RelationGraph(object):
     
 
 class WordnetGraph(object):
+  # TODO: see if this wn can be removed?
   def __init__(self, wn):
     self.synset_list = SynsetList(wn)
     self.wn = wn
