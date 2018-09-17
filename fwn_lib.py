@@ -19,7 +19,7 @@ PARTS_OF_SPEECH = {
 }
 
 ROOT_LEMMAS = {
-    PartOfSpeech.NOUN : wn.synset('entity.n.01'),
+    PartOfSpeech.NOUN : wn.synset('physical_entity.n.01'),
 }
 
 RELATION_FUNCTIONS = {
@@ -57,8 +57,8 @@ class RelationGraph(object):
   def add_edges(self):  
     for synset in wn.all_synsets():
       self.edges[synset.name()] = [related_synset.name() 
-                                                for related_synset in
-                                                self.relation_function(synset)]
+                                   for related_synset in
+                                   self.relation_function(synset)]
 
   def bfs_order(self, root):
     bfs_order = [root]
@@ -73,6 +73,8 @@ class RelationGraph(object):
       current_index += 1
     return bfs_order
 
+  def children(self, root):
+    return self.edges[root]
     
 
 class WordnetGraph(object):
@@ -88,4 +90,7 @@ class WordnetGraph(object):
 
   def bfs_order(self, relation, root):
     return self.relation_graphs[relation].bfs_order(root)
+
+  def children(self, relation, root):
+    return self.relation_graphs[relation].children(root)
 
