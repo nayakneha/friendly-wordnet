@@ -46,16 +46,28 @@ class SynsetList(object):
     assert len(self.synset_list) == len(set(self.synset_list))
 
 class RelationGraph(object):
-  def __init__(self, wn, synset_list, relation
+  def __init__(self, wn, synset_list, relation, edge_list=None,
               ):
     self.wn = wn
-    self.edges = {}
     self.relation = relation
-    self.relation_function = RELATION_FUNCTIONS[relation]
     self.synset_list = synset_list
-    self.add_edges()
+    if edge_list is not None:
+      self.edges = self.make_edges_from_edge_list(edge_list)
+    else:
+      assert self.relation in RELATION_FUNCTIONS
+      self.relation_function = RELATION_FUNCTIONS[relation]
+      self.edges = {}
+      self.add_edges()
+
+  def make_edges_from_edge_list(self, edge_list):
+    edges = collections.defaultdict(list)
+    for parent, child in edge_list:
+      edges[parent].append(child)
+    return edges
 
   def add_edges(self):
+    # TODO: determine whether there is ever a reason to add edges besides
+    # instantiation.
     for synset in wn.all_synsets():
       self.edges[synset.name()] = [related_synset.name()
                                    for related_synset in
