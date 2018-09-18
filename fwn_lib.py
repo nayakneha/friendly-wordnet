@@ -1,7 +1,7 @@
-from nltk.corpus import wordnet as wn
 import collections
+from nltk.corpus import wordnet as wn
 
-class PartOfSpeech(object):  # pylint: disable=too-few-public-methods 
+class PartOfSpeech(object):  # pylint: disable=too-few-public-methods
   ADJECTIVE = "Adjective"
   NOUN = "Noun"
   ADVERB = "Adverb"
@@ -36,34 +36,26 @@ def print_edge(from_string, to_string, relation, dist=None):
   fields = [from_string, to_string, relation]
   if dist is not None:
     fields.append(str(dist))
-  print ("\t".join(fields))
+  print "\t".join(fields)
 
 class SynsetList(object):
   # TODO: rename the list in this thing...
-  def __init__(self, wn):
+  def __init__(self):
     self.synset_list = tuple(
         sorted(synset.name() for synset in wn.all_synsets()))
     assert len(self.synset_list) == len(set(self.synset_list))
 
 class RelationGraph(object):
-  def __init__(self, wn, synset_list, relation, edge_list=None,
-              ):
-    self.wn = wn
+  def __init__(self, synset_list, relation, edge_list=None):
     self.relation = relation
     self.synset_list = synset_list
     if edge_list is not None:
-      self.edges = self.make_edges_from_edge_list(edge_list)
+      self.edges = make_edges_from_edge_list(edge_list)
     else:
       assert self.relation in RELATION_FUNCTIONS
       self.relation_function = RELATION_FUNCTIONS[relation]
       self.edges = {}
       self.add_edges()
-
-  def make_edges_from_edge_list(self, edge_list):
-    edges = collections.defaultdict(list)
-    for parent, child in edge_list:
-      edges[parent].append(child)
-    return edges
 
   def add_edges(self):
     # TODO: determine whether there is ever a reason to add edges besides
@@ -91,13 +83,13 @@ class RelationGraph(object):
     edge_list = []
     to_visit = [root]
     visited_nodes = set()
-    while len(to_visit):
+    while to_visit:
       current_synset = to_visit.pop()
       new_edges = [(current_synset, child)
                    for child in self.edges[current_synset]]
       edge_list += new_edges
-      to_visit += [child for parent, child in new_edges
-                    if child not in visited_nodes and child not in to_visit]
+      to_visit += [child for _, child in new_edges
+                   if child not in visited_nodes and child not in to_visit]
       visited_nodes.add(current_synset)
 
     # We have an edge set instead of an edge list because some nodes have two
@@ -109,13 +101,12 @@ class RelationGraph(object):
 
 class WordnetGraph(object):
   # TODO: see if this wn can be removed?
-  def __init__(self, wn):
-    self.synset_list = SynsetList(wn)
-    self.wn = wn
+  def __init__(self):
+    self.synset_list = SynsetList()
     self.relation_graphs = {}
 
   def add_relation_subgraph(self, relation):
-    self.relation_graphs[relation] = RelationGraph(self.wn, self.synset_list,
+    self.relation_graphs[relation] = RelationGraph(self.synset_list,
                                                    relation)
 
   def bfs_order(self, relation, root):
@@ -126,3 +117,9 @@ class WordnetGraph(object):
 
   def edge_pair_list(self, relation, root):
     return self.relation_graphs[relation].edge_pair_list(root)
+
+def make_edges_from_edge_list(edge_list):
+  edges = collections.defaultdict(list)
+  for parent, child in edge_list:
+    edges[parent].append(child)
+  return edges
